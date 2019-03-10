@@ -54,7 +54,7 @@ shading interp;
 error = [];
 planes = length(a); % number of planes (9 for the 1-9 example)
 intensity_array = {}; % initialize intensity array for average intensity
-new_F = {};
+new_F = {}; % initialize array to store amplitude before IFT
 rng(1);
 A = a{randi([1 9])}; % first phase is random
 
@@ -63,7 +63,7 @@ for l = 1:50 % arbitrary number of iterations
     B = abs(input_intensity).*exp(1i*angle(A)); % random phase from the 10 input images
     C = fftshift(fft2(fftshift(B)));
     
-    for m = 1:planes
+    for m = 1:planes % will run once for every plane and store in cell arrays
         D = fresnelpropagation2(C,(100*m),0.450,0.39,0.39);
         E = abs(a{k}).*exp(1i*angle(D));
         F = fresnelpropagation2(E,(-100*m),0.450,0.39,0.39);
@@ -72,9 +72,9 @@ for l = 1:50 % arbitrary number of iterations
         new_F{m} = F; % Amplitude before IFT array
     end
     
-    c_intensity_array = cat(3,intensity_array{:});
+    c_intensity_array = cat(3,intensity_array{:}); % concatenates in 3D
     average_intensity = mean(c_intensity_array,3); % average reconstructed intensity
-    c_F = cat(3,new_F{:});
+    c_F = cat(3,new_F{:}); % concatenates in 3D
     average_amplitude = mean(c_F,3); % average amplitude before IFT
     
     A = fftshift(ifft2(fftshift(average_amplitude)));
@@ -83,7 +83,7 @@ for l = 1:50 % arbitrary number of iterations
 end
 % error = avg of errors?
 
-%% Display
+%% Display of avg intensity and phase hologram
 
 figure;
 subplot(2,1,1);
@@ -91,7 +91,7 @@ imagesc(average_intensity); % use to display average of 1-9
 title('Average intensity');
 
 subplot(2,1,2);
-imagesc(phase_hologram);
+imagesc(phase_hologram); % use to display phase hologram
 title('Phase hologram');
 
 toc;
