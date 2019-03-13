@@ -4,10 +4,10 @@ function comparefresnel(U0, z, lambda, dx, dy)
     
     % close all;
     figure;
-    subplot(1,2,1);
+    subplot(3,2,1);
     imagesc(abs(U0));
     title('Amplitude/intensity of input plane');
-    subplot(1,2,2);
+    subplot(3,2,2);
     imagesc(angle(U0));
     title('Phase of input plane');
     
@@ -57,25 +57,24 @@ function comparefresnel(U0, z, lambda, dx, dy)
     Aout = AFoldCore.*AFt;
     
     %%
-    figure;
-    subplot(2,2,1);
+    subplot(3,2,3);
     imagesc(abs(out));
-    colorbar;
+    %colorbar;
     title('Amplitude, method 1');
     
-    subplot(2,2,2);
+    subplot(3,2,4);
     imagesc(angle(out));
-    colorbar;
+    %colorbar;
     title('Phase, method 1');
     
-    subplot(2,2,3);
+    subplot(3,2,5);
     imagesc(abs(Aout));
-    colorbar;
+    %colorbar;
     title('Amplitude, method 2');
     
-    subplot(2,2,4);
+    subplot(3,2,6);
     imagesc(angle(Aout));
-    colorbar;
+    %colorbar;
     title('Phase, method 2');
     
 end

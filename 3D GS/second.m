@@ -3,7 +3,7 @@ clear all; close all; clc;
 tic;
 
 %% Read in images of 1-9
-myFolder = 'C:\Users\yannz\OneDrive\Documents\Imperial\Year 4 project\Yann''s codes\Opening and visualising 3D image\onetoten';
+myFolder = '3D pictures\onetoten';
 if ~isdir(myFolder)
   errorMessage = sprintf('Error: The following folder does not exist:\n%s', myFolder);
   uiwait(warndlg(errorMessage));
