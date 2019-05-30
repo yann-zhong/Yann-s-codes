@@ -60,7 +60,7 @@ function comparefresnel(U0, z, lambda, dx, dy)
     subplot(3,2,3);
     imagesc(abs(out));
     %colorbar;
-    title('Amplitude, method 1');
+    title('Intensity, method 1');
     
     subplot(3,2,4);
     imagesc(angle(out));
@@ -70,7 +70,7 @@ function comparefresnel(U0, z, lambda, dx, dy)
     subplot(3,2,5);
     imagesc(abs(Aout));
     %colorbar;
-    title('Amplitude, method 2');
+    title('Intensity, method 2');
     
     subplot(3,2,6);
     imagesc(angle(Aout));

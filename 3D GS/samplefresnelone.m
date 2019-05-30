@@ -2,14 +2,14 @@ close all; clear all; clc;
 % send a sample code to Chris - use one and see what both Fresnel codes do.
 
 %% Open folder and put all images in arrayofones
-myFolder = '3D pictures\onetoone';
+myFolder = 'C:\Users\yannz\OneDrive\Documents\Imperial\Year 4 project\Yann''s codes\3D GS\3D pictures\onetoone';
 if ~isdir(myFolder)
   errorMessage = sprintf('Error: The following folder does not exist:\n%s', myFolder);
   uiwait(warndlg(errorMessage));
   return;
 end
 
-filePattern = fullfile(myFolder, '*.jpg'); % builds a file specification from any file ending in tiff
+filePattern = fullfile(myFolder, '*.jpg'); % builds a file specification from any file ending in jpg
 jpgFiles = dir(filePattern); % dir lists all files in the current folder
 
 for k = 1:length(jpgFiles)

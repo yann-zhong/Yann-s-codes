@@ -64,7 +64,7 @@ for l = 1:50 % arbitrary number of iterations
     field_fourier = fftshift(fft2(fftshift(field_focal))); % go from focal plane to Fourier plane
     
     for m = 1:planes % will run once for every plane and store in cell arrays
-        field_fresnel = fresnelpropagation2(field_fourier,(100*m),0.500,0.39,0.39); % propagate 100*m um forwards
+        field_fresnel = fresnelpropagation2(field_fourier,(120*m),0.500,0.39,0.39); % propagate 100*m um forwards
         image_fresnel = abs(a{k}).*exp(1i*angle(field_fresnel)); % get the "image"
         image_fourier = fresnelpropagation2(image_fresnel,(-100*m),0.500,0.39,0.39); % propagate 100*m um backwards
         
