@@ -24,15 +24,15 @@ for k = 1:length(jpgFiles)
   a{k} = double(imageArray{k}); % put images into new Array for processing purposes
   a{k} = fftshift(ifft2(fftshift(a{k}))); % A is now an array with 9 elements with phase and amplitude info
   
-  subplot(1,2,1);
-  imshow(abs(a{k})); % display image. Works outside of loop
-  subplot(1,2,2);
-  imshow(angle(a{k}));
-  drawnow; % force display to update immediately.
+  %subplot(1,2,1);
+  %imshow(abs(a{k})); % display image. Works outside of loop
+  %subplot(1,2,2);
+  %imshow(angle(a{k}));
+  %drawnow; % force display to update immediately.
 end
 
 %% Creation of source beam %%
-figure;
+% figure;
 x = linspace(-10,10,540); % linearly spaced vector for x dimension
                           % (change last value if image dimensions are different)
 y = linspace(-10,10,540); % linearly spaced vector for y dimension 
@@ -46,8 +46,8 @@ sigma = 2; % beam waist
 bp = 1; % beam peak
 res = ((X-x0).^2 + (Y-y0).^2)./(2*sigma^2);                     
 input_intensity = bp  * exp(-res); % Gaussian beam definitions
-surf(input_intensity);                                         
-shading interp;    
+% surf(input_intensity);                                         
+% shading interp;    
 
 %% GS algorithm loop here
 
@@ -56,11 +56,11 @@ planes = length(a); % number of planes (9 for the 1-9 example)
 intensity_array = {}; % initialize intensity array for average intensity
 amplitude_array = {}; % initialize array to store amplitude before IFT
 rng(1);
-random_phase = a{randi([1 9])}; % first phase is random
+average_amplitude = a{randi([1 9])}; % first phase is random; then it changes every iteration
 
 for l = 1:50 % arbitrary number of iterations
     
-    field_focal = abs(input_intensity).*exp(1i*angle(random_phase)); % random phase from the 10 input images
+    field_focal = abs(input_intensity).*exp(1i*angle(average_amplitude)); % random phase from the 10 input images
     field_fourier = fftshift(fft2(fftshift(field_focal))); % go from focal plane to Fourier plane
     
     for m = 1:planes % will run once for every plane and store in cell arrays
