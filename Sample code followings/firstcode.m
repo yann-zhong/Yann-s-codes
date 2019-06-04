@@ -22,8 +22,8 @@ shading interp;
                           %% Reading in of image and initialisation of parameters %%
 target = rgb2gray(imread('Obi_wan.png'));                      % Why rgb2gray? only grayscale?
 target = double(target);                                       % reconversion for using fftshift
-imshow('Obi_wan.png');
-imshow(target);
+%imshow('Obi_wan.png');
+%imshow(target);
 A = fftshift(ifft2(fftshift(target)));                         % outside of GS loop
 error = [];                                                    % creates an empty array for error
 % iteration_count;                                             % can specify number if wished

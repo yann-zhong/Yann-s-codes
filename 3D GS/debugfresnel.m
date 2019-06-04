@@ -30,62 +30,103 @@ end
 %% Forward Fresnel + back to focal plane
 
 % In the Fourier plane, forward Fresnel "1" with both propagation functions
-ff1 = fresnelpropagation2(fourier_imageArray{1},150,0.6,0.39,0.39); % fresnel_forward_one
-ff2 = fresnelpropagateft(fourier_imageArray{1},150,0.6,0.39,0.39); % fresnel_forward_two
+ff1 = fresnelpropagation2(imageArray{1},150,0.6,0.39,0.39); % fresnel_forward_one
+ff2 = fresnelpropagateft(imageArray{1},150,0.6,0.39,0.39); % fresnel_forward_two
 % Propagate them back to the focal plane, and compare
-fff1 = fftshift(ifft2(fftshift(ff1))); % focal_fresnel_forward_one
-fff2 = fftshift(ifft2(fftshift(ff2))); % focal_fresnel_forward_two
+fff1 = fftshift(ifft2(ifftshift(ff1))); % focal_fresnel_forward_one
+fff2 = fftshift(ifft2(ifftshift(ff2))); % focal_fresnel_forward_two
+
 figure;
 subplot(2,1,1);
 imagesc(abs(fff1));
 title('Forward, focal, fresnelpropagation2');
+colormap(gray(256));
+colorbar;
 subplot(2,1,2);
 imagesc(abs(fff2));
 title('Forward, focal, fresnelpropagateft');
+colormap(gray(256));
+colorbar;
 
 %% Forward + backward Fresnel + back to focal plane
 
 % In the Fourier plane, backward Fresnel the forward Fresnel "1" with both
 % propagation functions
-ffb1 = fresnelpropagation2(fff1,-150,0.6,0.39,0.39); % fresnel_forward_backward_one
-ffb2 = fresnelpropagateft(fff2,-150,0.6,0.39,0.39); % fresnel_forward_backward_two
+ffb1 = fresnelpropagation2(ff1,150,0.6,0.39,0.39); % fresnel_forward_backward_one
+ffb2 = fresnelpropagateft(ff2,150,0.6,0.39,0.39); % fresnel_forward_backward_two
 %ffb1 = fresnelpropagation2(conj(fff1),150,0.6,0.39,0.39); % fresnel_forward_backward_one
 %ffb2 = fresnelpropagateft(conj(fff2),150,0.6,0.39,0.39); % fresnel_forward_backward_two
 % Propagate them back to the focal plane, and compare
-fffb1 = fftshift(ifft2(fftshift(ffb1))); % focal_fresnel_forward_backward_one
-fffb2 = fftshift(ifft2(fftshift(ffb2))); % focal_fresnel_forward_backward_two
+fffb1 = fftshift(ifft2(ifftshift(ffb1))); % focal_fresnel_forward_backward_one
+fffb2 = fftshift(ifft2(ifftshift(ffb2))); % focal_fresnel_forward_backward_two
+
 figure;
 subplot(2,1,1);
 imagesc(abs(fffb1));
 title('For + back, focal, fresnelpropagation2');
+colormap(gray(256));
+colorbar;
 subplot(2,1,2);
 imagesc(abs(fffb2));
 title('For + back , focal, fresnelpropagateft');
+colormap(gray(256));
+colorbar;
 
 %% Adding and subbing the fresnel planes
+for j = 1:1
+    % In the Fourier plane, sum and sub the fresnel fields
+    sum1 = ff1 + ffb1;
+    sum2 = ff2 + ffb2;
+    sub1 = ff1 - ffb1;
+    sub2 = ff2 - ffb2;
 
-% In the Fourier plane, sum and sub the fresnel fields
-sum1 = ff1 + ffb1;
-sum2 = ff2 + ffb2;
-sub1 = ff1 - ffb1;
-sub2 = ff2 - ffb2;
+    % Propagate them back to the focal plane, and compare
+    focal_sum1 = fftshift(ifft2(fftshift(sum1)));
+    focal_sum2 = fftshift(ifft2(fftshift(sum2)));
+    focal_sub1 = fftshift(ifft2(fftshift(sub1)));
+    focal_sub2 = fftshift(ifft2(fftshift(sub2)));
 
-% Propagate them back to the focal plane, and compare
-focal_sum1 = fftshift(ifft2(fftshift(sum1)));
-focal_sum2 = fftshift(ifft2(fftshift(sum2)));
-focal_sub1 = fftshift(ifft2(fftshift(sub1)));
-focal_sub2 = fftshift(ifft2(fftshift(sub2)));
+    figure;
+    subplot(2,2,1);
+    imagesc(abs(focal_sum1));
+    title('Sum of for and for + back, fresnelpropagation2');
+    colormap(gray(256));
+    colorbar;
+    subplot(2,2,2);
+    imagesc(abs(focal_sum2));
+    title('Sum of for and for + back, fresnelpropagateft');
+    colormap(gray(256));
+    colorbar;
+    subplot(2,2,3);
+    imagesc(abs(focal_sub1));
+    title('Sub of for and for + back, fresnelpropagation2');
+    colormap(gray(256));
+    colorbar;
+    subplot(2,2,4);
+    imagesc(abs(focal_sub2));
+    title('Sub of for and for + back, fresnelpropagateft');
+    colormap(gray(256));
+    colorbar;
+end
 
-figure;
-subplot(2,2,1);
-imagesc(abs(focal_sum1));
-title('Sum of for and for + back, fresnelpropagation2');
-subplot(2,2,2);
-imagesc(abs(focal_sum2));
-title('Sum of for and for + back, fresnelpropagateft');
-subplot(2,2,3);
-imagesc(abs(focal_sub1));
-title('Sub of for and for + back, fresnelpropagation2');
-subplot(2,2,4);
-imagesc(abs(focal_sub2));
-title('Sub of for and for + back, fresnelpropagateft');
+%% Fourier plane forward Fresnel transforms
+for j = 1:1
+    figure;
+    subplot(3,1,1);
+    imagesc(abs(fourier_imageArray{1}));
+    title('Fourier plane no diffraction');
+    colormap(gray(256));
+    colorbar;
+    
+    subplot(3,1,2);
+    imagesc(abs(ff1));
+    title('Fourier plane, forward fresnelpropagation2');
+    colormap(gray(256));
+    colorbar;
+    
+    subplot(3,1,3);
+    imagesc(abs(ff2));
+    title('Fourier plane, forward fresnelpropagateft');
+    colormap(gray(256));
+    colorbar;
+end
