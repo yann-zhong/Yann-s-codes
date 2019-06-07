@@ -24,7 +24,7 @@ target = rgb2gray(imread('Obi_wan.png'));                      % Why rgb2gray? o
 target = double(target);                                       % reconversion for using fftshift
 %imshow('Obi_wan.png');
 %imshow(target);
-A = fftshift(ifft2(fftshift(target)));                         % outside of GS loop
+A = fftshift(ifft2(ifftshift(target)));                         % outside of GS loop
 error = [];                                                    % creates an empty array for error
 % iteration_count;                                             % can specify number if wished
 
@@ -33,33 +33,33 @@ figure;
 subplot(2,3,1);
 imshow('Obi_wan.png');                                         % Shows OG image (in color)
 
-for i = 1:200
+for i = 1:100
     B = abs(input_intensity) .* exp(1i*angle(A));              % .* for element wise multiplication
-    C = fftshift(fft2(fftshift(B)));                           
+    C = fftshift(fft2(ifftshift(B)));                           
     D = abs(target) .* exp(1i*angle(C));                       
-    A = fftshift(ifft2(fftshift(D)));                          
+    A = fftshift(ifft2(ifftshift(D)));                          
     error = [error; sum(sum(abs(abs(C) - abs(target))))]; 
     if i == 3                                                  % 3 iterations
         subplot(2,3,2);
         imshow(target);
         title('Obi-Wan original PNG');
         subplot(2,3,3);
-        imagesc(abs(C));
+        imagesc(abs(C/mean(C(:))));
         title('Reconstruction, 3 iterations');
     end
     if i == 6                                                 % 6 iterations
         subplot(2,3,4);
-        imagesc(abs(C));
+        imagesc(abs(C/mean(C(:))));
         title('Reconstruction, 6 iterations');
     end
     if i == 10                                                % 10 iterations
         subplot(2,3,5);
-        imagesc(abs(C));
+        imagesc(abs(C/mean(C(:))));
         title('Reconstruction, 10 iterations');
     end
     if i == 100                                               % 100 iterations
         subplot(2,3,6);
-        imagesc(abs(C));
+        imagesc(abs(C/mean(C(:))));
         title('Reconstruction, 100 iterations');
     end
 end

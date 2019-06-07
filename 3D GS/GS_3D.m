@@ -5,7 +5,7 @@ tic;
 
 %% Read in images of 1-9
 
-myFolder = 'C:\Users\yannz\OneDrive\Documents\Imperial\Year 4 project\Yann''s codes\3D GS\3D pictures\onetoone';
+myFolder = 'C:\Users\yannz\OneDrive\Documents\Imperial\Year 4 project\Yann''s codes\3D GS\3D pictures\onetoten';
 if ~isdir(myFolder) % define folder to look into
   errorMessage = sprintf('Error: The following folder does not exist:\n%s', myFolder);
   uiwait(warndlg(errorMessage));
@@ -23,8 +23,6 @@ for k = 1:length(jpgFiles)
   imageArray{k} = imread(fullFileName);
   imageArray{k} = double(imageArray{k})/255; % normalize image by dividing double by 255
 end
-% as opposed to third.m, don't go to Fourier plane immediately as the
-% Fresnel propagation code already includes an fft2.
 
 %% Creation of coherent source beam
 
@@ -53,25 +51,34 @@ amplitude_array = cell(1,planes); % amplitude is intensity * e^(1i*phase)
 rng(1);
 average_amplitude = fftshift(ifft2(ifftshift(imageArray{randi([1 9])}))); % first phase is random; then it changes every iteration
 
-% figure;
+figure;
 
 for iterations = 1:10 % usually converges in less than 10, but increase if more precision is desired
     
   focal_amplitude = abs(input_intensity).*exp(1i*angle(average_amplitude)); % FOCAL PLANE AMPLITUDE
-  
-  % Run Fresnel forward and backwards to allow for 3D reconstructions % 
-  for m = 1:planes % the forward FT is part of the fresnel propagation function
-      fresnel_forward = fresnelpropagation2(focal_amplitude,100*m,0.6,0.39,0.39); % forward Fresnel propagate
+  lens_field = fftshift(fft2(ifftshift(focal_amplitude))); % finding field after "lens"
+   
+  for m = 1:planes
       
-      intensity_approximation = abs(fresnel_forward/mean(fresnel_forward(:))); % Get approximation to target intensity at this step
+      subplot(3,1,1);
+      imagesc(abs(lens_field));
+      
+      fresnel_forward = fresnelpropagateft(lens_field,10*m,0.6,0.39,0.39); % forward Fresnel propagate
+      intensity_approximation = abs(fresnel_forward/mean(fresnel_forward(:))); % Get normalized approximation
       intensity_array{m} = intensity_approximation;
+      subplot(3,1,2);
       imagesc(intensity_approximation);
-      drawnow;
       
       fourier_amplitude = abs(imageArray{m}).*exp(1i*angle(fresnel_forward)); % get amplitude
-      new_focal_amplitude = fresnelpropagation2(conj(fourier_amplitude),100*m,0.6,0.39,0.39); % conjugate for backward Fresnel
       
-      amplitude_array{m} = new_focal_amplitude;
+      lens_field = fresnelpropagateft(conj(fresnel_forward),10*m,0.6,0.39,0.39); % propagate back to original field
+      
+      subplot(3,1,3);
+      imagesc(abs(lens_field));
+      
+      focal_amplitude = fftshift(ifft2(ifftshift(fourier_amplitude)));
+      amplitude_array{m} = focal_amplitude;
+      
   end
   
   % Average all ten amplitudes to get phase hologram and new phase value %
