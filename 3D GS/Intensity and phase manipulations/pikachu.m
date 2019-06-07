@@ -14,8 +14,8 @@ imagesc(pikachu2);
 
 %% FT to get amplitude and phase information
 
-ft_pikachu1 = fftshift(fft2(ifftshift(pikachu1)));
-ft_pikachu2 = fftshift(fft2(ifftshift(pikachu2)));
+ft_pikachu1 = fftshift(fft2(pikachu1));
+ft_pikachu2 = fftshift(fft2(pikachu2));
 
 intensity_p1 = abs(ft_pikachu1);
 intensity_p2 = abs(ft_pikachu2);
@@ -25,8 +25,8 @@ phase_p2 = exp(1i*angle(ft_pikachu2));
 %% Reconstruction
 
 % Intensity only
-pikachu1_i = fftshift(ifft2(ifftshift(intensity_p1)));
-pikachu2_i = fftshift(ifft2(ifftshift(intensity_p2)));
+pikachu1_i = ifft2(ifftshift(intensity_p1));
+pikachu2_i = ifft2(ifftshift(intensity_p2));
 
 % log to show values that might be out of range
 pikachu1_i = 2*log(1 + (pikachu1_i));
@@ -39,8 +39,8 @@ subplot(2,1,2);
 imagesc(abs(pikachu2_i));
 
 % Phase only
-pikachu1_p = fftshift(ifft2(ifftshift(phase_p1)));
-pikachu2_p = fftshift(ifft2(ifftshift(phase_p2)));
+pikachu1_p = ifft2(ifftshift(phase_p1));
+pikachu2_p = ifft2(ifftshift(phase_p2));
 
 figure;
 subplot(2,1,1);
@@ -52,8 +52,8 @@ imagesc(abs(pikachu2_p));
 pikachu12 = intensity_p1.*phase_p2;
 pikachu21 = intensity_p2.*phase_p1;
 
-pikachu12_r = fftshift(ifft2(ifftshift(pikachu12)));
-pikachu21_r = fftshift(ifft2(ifftshift(pikachu21)));
+pikachu12_r = ifft2(ifftshift(pikachu12)); % need to go back to focal plane to see reconstruction!
+pikachu21_r = ifft2(ifftshift(pikachu21));
 
 figure;
 subplot(2,1,1);

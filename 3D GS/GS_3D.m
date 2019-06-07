@@ -14,7 +14,7 @@ end
     
 filePattern = fullfile(myFolder, '*.jpg'); % builds a file specification from any file ending in tiff
 jpgFiles = dir(filePattern); % dir lists all files in the current folder
-imageArray = cell(1,9);
+imageArray = cell(1,9); % preallocate for speed
 
 for k = 1:length(jpgFiles)
   baseFileName = jpgFiles(k).name;
@@ -35,7 +35,7 @@ y = linspace(-10,10,540); % linearly spaced vector for y dimension
 % Use Gaussian beam
 x0 = 0; % center
 y0 = 0; % center
-sigma = 2; % beam waist
+sigma = 10; % beam waist
 bp = 1; % beam peak
 res = ((X-x0).^2 + (Y-y0).^2)./(2*sigma^2);                     
 input_intensity = bp  * exp(-res); % Gaussian beam definitions
@@ -49,34 +49,25 @@ planes = length(imageArray);
 intensity_array = cell(1,planes); % initialize intensity array for average intensity
 amplitude_array = cell(1,planes); % amplitude is intensity * e^(1i*phase)
 rng(1);
-average_amplitude = fftshift(ifft2(ifftshift(imageArray{randi([1 9])}))); % first phase is random; then it changes every iteration
-
-figure;
+average_amplitude = ifft2(ifftshift(imageArray{randi([1 9])})); % first phase is random; then it changes every iteration
 
 for iterations = 1:10 % usually converges in less than 10, but increase if more precision is desired
     
   focal_amplitude = abs(input_intensity).*exp(1i*angle(average_amplitude)); % FOCAL PLANE AMPLITUDE
-  lens_field = fftshift(fft2(ifftshift(focal_amplitude))); % finding field after "lens"
+  lens_field = fftshift(fft2(focal_amplitude)); % finding field after "lens"
    
   for m = 1:planes
       
-      subplot(3,1,1);
-      imagesc(abs(lens_field));
+      fresnel_forward = fresnelpropagateft(lens_field,m,0.6,0.39,0.39); % forward Fresnel propagate
       
-      fresnel_forward = fresnelpropagateft(lens_field,10*m,0.6,0.39,0.39); % forward Fresnel propagate
       intensity_approximation = abs(fresnel_forward/mean(fresnel_forward(:))); % Get normalized approximation
       intensity_array{m} = intensity_approximation;
-      subplot(3,1,2);
-      imagesc(intensity_approximation);
-      
+     
       fourier_amplitude = abs(imageArray{m}).*exp(1i*angle(fresnel_forward)); % get amplitude
       
-      lens_field = fresnelpropagateft(conj(fresnel_forward),10*m,0.6,0.39,0.39); % propagate back to original field
+      lens_field = fresnelpropagateft(fourier_amplitude,-m,0.6,0.39,0.39); % propagate back to original field
       
-      subplot(3,1,3);
-      imagesc(abs(lens_field));
-      
-      focal_amplitude = fftshift(ifft2(ifftshift(fourier_amplitude)));
+      focal_amplitude = ifft2(ifftshift(lens_field));
       amplitude_array{m} = focal_amplitude;
       
   end
@@ -86,10 +77,11 @@ for iterations = 1:10 % usually converges in less than 10, but increase if more 
   for i = 2:planes
       sum_amplitude = sum_amplitude + amplitude_array{i};
   end
-  average_amplitude = sum_amplitude/9; % the phase of this amplitude will be plugged back to the start of the next iteration
-  phase_hologram = angle(average_amplitude); % in focal plane
-  average_amplitude = fftshift(ifft2(ifftshift(average_amplitude))); % needs to be back in Fourier plane to get phase information
+  focal_average = sum_amplitude/9; % the phase of this amplitude will be plugged back to the start of the next iteration
+  average_amplitude = ifft2(ifftshift(focal_average)); % needs to be back in Fourier plane to get phase information
   
+  phase_hologram = exp(1i*angle(average_amplitude)); % phase term is the phase hologram
+    
   % Average all ten intensitites to get average intensity reconstruction %
   sum_intensity = intensity_array{1};
   for i = 2:planes
@@ -104,7 +96,7 @@ end
 figure;
 
 subplot(2,1,1);
-imagesc(phase_hologram);
+imagesc(abs(fftshift(fft2(phase_hologram))));
 colormap(gray(256));
 colorbar;
 title("Phase hologram after " + iterations + " iterations");
@@ -114,6 +106,8 @@ imagesc(average_intensity);
 colormap(gray(256));
 colorbar;
 title("Average of all reconstructions after " + iterations + " iterations");
-% Am I meant to "see" anything here?
-
+    
 toc;
+
+%% Display individual reconstructions
+
