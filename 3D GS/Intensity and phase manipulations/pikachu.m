@@ -7,9 +7,9 @@ pikachu1 = double(rgb2gray(imread('pikachu.png')));
 pikachu2 = double(rgb2gray(imread('pikachu_no_tail.png')));
 
 figure;
-subplot(2,1,1);
+subplot(1,2,1);
 imagesc(pikachu1);
-subplot(2,1,2);
+subplot(1,2,2);
 imagesc(pikachu2);
 
 %% FT to get amplitude and phase information
@@ -33,9 +33,9 @@ pikachu1_i = 2*log(1 + (pikachu1_i));
 pikachu2_i = 2*log(1 + (pikachu2_i));
 
 figure;
-subplot(2,1,1);
+subplot(1,2,1);
 imagesc(abs(pikachu1_i));
-subplot(2,1,2);
+subplot(1,2,2);
 imagesc(abs(pikachu2_i));
 
 % Phase only
@@ -43,9 +43,9 @@ pikachu1_p = ifft2(ifftshift(phase_p1));
 pikachu2_p = ifft2(ifftshift(phase_p2));
 
 figure;
-subplot(2,1,1);
+subplot(1,2,1);
 imagesc(abs(pikachu1_p));
-subplot(2,1,2);
+subplot(1,2,2);
 imagesc(abs(pikachu2_p));
 
 % Mixing up phase and intensity of both
@@ -56,10 +56,10 @@ pikachu12_r = ifft2(ifftshift(pikachu12)); % need to go back to focal plane to s
 pikachu21_r = ifft2(ifftshift(pikachu21));
 
 figure;
-subplot(2,1,1);
+subplot(1,2,1);
 imagesc(abs(pikachu12_r));
 title('Intensity of p1, phase of p2');
-subplot(2,1,2);
+subplot(1,2,2);
 imagesc(abs(pikachu21_r));
 title('Intensity of p2, phase of p1');
 

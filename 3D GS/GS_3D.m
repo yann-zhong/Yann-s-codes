@@ -14,7 +14,7 @@ end
     
 filePattern = fullfile(myFolder, '*.jpg'); % builds a file specification from any file ending in tiff
 jpgFiles = dir(filePattern); % dir lists all files in the current folder
-imageArray = cell(1,9); % preallocate for speed
+imageArray = cell(1,10); % preallocate for speed. Include a dummy 10th dimension to account for false reconstruction
 
 for k = 1:length(jpgFiles)
   baseFileName = jpgFiles(k).name;
@@ -49,32 +49,48 @@ planes = length(imageArray);
 intensity_array = cell(1,planes); % initialize intensity array for average intensity
 amplitude_array = cell(1,planes); % amplitude is intensity * e^(1i*phase)
 rng(1);
-average_amplitude = ifft2(ifftshift(imageArray{randi([1 9])})); % first phase is random; then it changes every iteration
+%average_amplitude = ifft2(ifftshift(imageArray{randi([1 9])})); % first phase is random; then it changes every iteration
+average_amplitude = ifft2(ifftshift(imageArray{1})); 
 
-for iterations = 1:10 % usually converges in less than 10, but increase if more precision is desired
+figure;
+
+for iterations = 1:50 % usually converges in less than 10, but increase if more precision is desired
     
   focal_amplitude = abs(input_intensity).*exp(1i*angle(average_amplitude)); % FOCAL PLANE AMPLITUDE
   lens_field = fftshift(fft2(focal_amplitude)); % finding field after "lens"
    
   for m = 1:planes
-      
       fresnel_forward = fresnelpropagateft(lens_field,m,0.6,0.39,0.39); % forward Fresnel propagate
       
       intensity_approximation = abs(fresnel_forward/mean(fresnel_forward(:))); % Get normalized approximation
       intensity_array{m} = intensity_approximation;
-     
+      
+%       if iterations == 2
+%           if m == 2
+%             subplot(2,1,1);
+%             imagesc(intensity_array{m});
+%           end
+%       end
+%       
+%       if iterations == 50
+%           if m == 2
+%             subplot(2,1,2);
+%             imagesc(intensity_array{m});
+%           end
+%       end
+      
       fourier_amplitude = abs(imageArray{m}).*exp(1i*angle(fresnel_forward)); % get amplitude
       
       lens_field = fresnelpropagateft(fourier_amplitude,-m,0.6,0.39,0.39); % propagate back to original field
       
       focal_amplitude = ifft2(ifftshift(lens_field));
       amplitude_array{m} = focal_amplitude;
-      
+
   end
   
   % Average all ten amplitudes to get phase hologram and new phase value %
-  sum_amplitude = amplitude_array{1};
-  for i = 2:planes
+  sum_amplitude = amplitude_array{2};
+  for i = 3:planes
       sum_amplitude = sum_amplitude + amplitude_array{i};
   end
   focal_average = sum_amplitude/9; % the phase of this amplitude will be plugged back to the start of the next iteration
@@ -83,8 +99,8 @@ for iterations = 1:10 % usually converges in less than 10, but increase if more 
   phase_hologram = exp(1i*angle(average_amplitude)); % phase term is the phase hologram
     
   % Average all ten intensitites to get average intensity reconstruction %
-  sum_intensity = intensity_array{1};
-  for i = 2:planes
+  sum_intensity = intensity_array{2};
+  for i = 3:planes
       sum_intensity = sum_intensity + intensity_array{i};
   end
   average_intensity = sum_intensity/9;
@@ -111,3 +127,11 @@ toc;
 
 %% Display individual reconstructions
 
+figure;
+
+for i = 2:planes
+   imagesc(intensity_array{i});
+   title("Reconstruction of plane " + (i-1));
+   drawnow;
+   pause; % to check planes individually
+end

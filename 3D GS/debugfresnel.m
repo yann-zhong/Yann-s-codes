@@ -156,7 +156,7 @@ for l = 1:10
    fresnel_backward = fresnelpropagateft(fresnel_forward,-100*l,0.6,0.39,0.39);
    imagesc(abs(fresnel_forward));
    drawnow;
-   title('Fresnel forward');
+   title("Fresnel forward propagation of "+ 100*l+ " PU");
    colormap(gray(256));
    colorbar;
 %     
